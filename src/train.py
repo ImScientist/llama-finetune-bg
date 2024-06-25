@@ -41,8 +41,8 @@ def generate_and_tokenize_prompt(data_point, tokenizer):
     """ Generate and tokenize prompt """
 
     full_prompt = prompter.generate_prompt(
-        instruction=data_point["instruction"],
-        input=data_point["input"],
+        usr_instruction=data_point["instruction"],
+        usr_input=data_point["input"],
         label=data_point["output"])
 
     tokenized_full_prompt = tokenize(full_prompt, tokenizer)

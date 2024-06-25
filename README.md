@@ -16,14 +16,27 @@ cache.
 HF_TOKEN=<hugging face token>
 MODEL_CACHE=${HOME}/cache
 NOTEBOOKS_DIR=$(pwd)/notebooks
+TARGET_REPO=<hugging face repository where the trained model will be stored>
 
 docker build -t llama_tune -f Dockerfile .
 
+# This will start a jupyter notebook server
 docker run -it --rm \
   --runtime=nvidia --gpus=all --name=llama_tune -p 8888:8888 \
   -v "$(pwd)/src:/workspace/src" \
   -v "${NOTEBOOKS_DIR}:/workspace/notebooks" \
   -v "${MODEL_CACHE}:/root/.cache" \
-  -e HF_TOKEN=HF_TOKEN \
+  -e HF_TOKEN=$HF_TOKEN \
   llama_tune:latest
+
+
+# Fine-tune the model using instructions translated in Bulgarian
+docker run -it --rm \
+  --runtime=nvidia --gpus=all --name=llama_tune -p 8888:8888 \
+  -v "$(pwd)/src:/workspace/src" \
+  -v "${MODEL_CACHE}:/root/.cache" \
+  -e HF_TOKEN=$HF_TOKEN \
+  llama_tune:latest -- python src/main.py \
+    --dataset=ImScientist/alpaca-cleaned-bg \
+    --target-repo=$TARGET_REPO    
 ```

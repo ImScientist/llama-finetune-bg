@@ -2,7 +2,7 @@
     A dedicated helper to manage templates and prompt building.
 """
 
-from typing import Union
+from typing import Literal
 
 PROMPT_TEMPLATE_ALPACA_EN = {
     "description": "Template used by Alpaca-LoRA.",
@@ -67,10 +67,10 @@ PROMPT_TEMPLATE_ALPACA_DE = {
 
 
 def generate_prompt(
-        instruction: str,
-        input: Union[None, str] = None,
-        label: Union[None, str] = None,
-        lang: str = 'en'
+        usr_instruction: str,
+        usr_input: None | str = None,
+        label: None | str = None,
+        lang: Literal['en', 'de', 'bg'] = 'en'
 ) -> str:
     """ Returns the full prompt from instruction and optional input
     if a label (=response, =output) is provided, it's also appended.
@@ -83,12 +83,12 @@ def generate_prompt(
     else:
         prompt_template = PROMPT_TEMPLATE_ALPACA_BG
 
-    if input:
+    if usr_input:
         res = (prompt_template["prompt_input"]
-               .format(instruction=instruction, input=input))
+               .format(instruction=usr_instruction, input=usr_input))
     else:
         res = (prompt_template["prompt_no_input"]
-               .format(instruction=instruction))
+               .format(instruction=usr_instruction))
     if label:
         res = f"{res}{label}"
 

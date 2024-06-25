@@ -12,6 +12,7 @@ from peft import (
     PeftModel)
 
 import prompter
+from typing import Literal
 
 logger = logging.getLogger()
 
@@ -60,9 +61,9 @@ def load_finetuned_model(repo_name, device_map='auto'):
 def inference(
         model,
         tokenizer,
-        instruction: str,
-        input_: str = None,
-        lang: str = 'en'
+        usr_instruction: str,
+        usr_input: str = None,
+        lang: Literal['en', 'de', 'bg'] = 'en'
 ) -> str:
     # Set stopping criteria
     stop_words = ["#"]
@@ -78,9 +79,9 @@ def inference(
     ])
 
     prompt = prompter.generate_prompt(
-        lang=lang,
-        instruction=instruction,
-        input=input_)
+        usr_instruction=usr_instruction,
+        usr_input=usr_input,
+        lang=lang)
 
     prompt_tokenized = tokenizer(
         prompt,
@@ -102,7 +103,12 @@ def inference(
     return res_str
 
 
-def infer(repo_name: str = f"ImScientist/Llama-2-7b-hf-finetuned"):
+def infer(
+        repo_name: str = 'ImScientist/Llama-2-7b-hf-finetuned',
+        usr_instruction: str = 'Whatever',
+        usr_input: str = None,
+        lang: Literal['en', 'de', 'bg'] = 'en'
+):
     """ Generate model responses to prompts """
 
     # TODO: make sure that all relevant parts are pushed to GPU
@@ -111,6 +117,8 @@ def infer(repo_name: str = f"ImScientist/Llama-2-7b-hf-finetuned"):
     res = inference(
         peft_model,
         tokenizer,
-        instruction="Wieviel Länder hat die Europäische Union?")
+        usr_instruction=usr_instruction,
+        usr_input=usr_input,
+        lang=lang)
 
     logger.info(res)
