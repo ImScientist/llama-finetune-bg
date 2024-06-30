@@ -105,13 +105,12 @@ def inference(
 
 def infer(
         repo_name: str = 'ImScientist/Llama-2-7b-hf-finetuned',
-        usr_instruction: str = 'Whatever',
+        usr_instruction: str = 'Коя е най-голямата страна в света?',
         usr_input: str = None,
         lang: Literal['en', 'de', 'bg'] = 'en'
 ):
     """ Generate model responses to prompts """
 
-    # TODO: make sure that all relevant parts are pushed to GPU
     tokenizer, peft_model = load_finetuned_model(repo_name)
 
     res = inference(

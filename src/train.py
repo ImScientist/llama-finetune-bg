@@ -118,25 +118,28 @@ def load_model(
 
 def train(
         dataset_name: Literal['yahma/alpaca-cleaned', 'ImScientist/alpaca-cleaned-bg'],
-        target_repo_name: str = 'ImScientist/Llama-2-7b-hf-finetuned'
+        target_repo_name: str | None = None
 ):
     """ Fine-tune llama model """
 
     base_model = 'meta-llama/Llama-2-7b-hf'
     device_map = 'auto'
 
-    val_set_size = 2_000
+    val_set_size = 200  # 2_000
     batch_size = 128
     micro_batch_size = 4
 
-    output_dir = './lora-alpaca-finetuned'
+    model_dir = './model'
+    model_checkpoints_dir = './model_checkpoints'
+
     resume_from_checkpoint = None
 
     tokenizer, peft_model = load_model(
         base_model=base_model,
         device_map=device_map)
 
-    ds = load_dataset(dataset_name)['train']
+    ds = load_dataset(dataset_name, split="train[:500]")
+    # ds = load_dataset(dataset_name)['train']
 
     ds_tr, ds_va = tr_va_split(
         ds=ds,
@@ -150,13 +153,13 @@ def train(
         train_dataset=ds_tr,
         eval_dataset=ds_va,
         args=TrainingArguments(
-            output_dir=output_dir,
+            output_dir=model_checkpoints_dir,
 
             per_device_train_batch_size=micro_batch_size,
             per_device_eval_batch_size=micro_batch_size,
             gradient_accumulation_steps=batch_size // micro_batch_size,
             warmup_steps=100,
-            num_train_epochs=3,
+            num_train_epochs=1,  # 3,
             learning_rate=3e-4,
             eval_steps=200 if val_set_size > 0 else None,
             save_steps=200,
@@ -181,6 +184,12 @@ def train(
             padding=True))
 
     train_results = trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+    logger.info(f'Training results:\n{train_results}')
 
-    # Share the trained model
-    peft_model.push_to_hub(target_repo_name)
+    logger.info('Save the lora weights locally')
+    peft_model.save_pretrained(model_dir, token=HF_TOKEN)
+
+    if target_repo_name:
+        logger.info(f'Push the LORA weights to the hugging-face '
+                    f'repo: {target_repo_name}')
+        peft_model.push_to_hub(target_repo_name)
