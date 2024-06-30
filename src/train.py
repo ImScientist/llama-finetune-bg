@@ -125,7 +125,7 @@ def train(
     base_model = 'meta-llama/Llama-2-7b-hf'
     device_map = 'auto'
 
-    val_set_size = 200  # 2_000
+    val_set_size = 2_000  # 200
     batch_size = 128
     micro_batch_size = 4
 
@@ -138,8 +138,8 @@ def train(
         base_model=base_model,
         device_map=device_map)
 
-    ds = load_dataset(dataset_name, split="train[:500]")
-    # ds = load_dataset(dataset_name)['train']
+    # ds = load_dataset(dataset_name, split="train[:500]")
+    ds = load_dataset(dataset_name)['train']
 
     ds_tr, ds_va = tr_va_split(
         ds=ds,
@@ -159,7 +159,7 @@ def train(
             per_device_eval_batch_size=micro_batch_size,
             gradient_accumulation_steps=batch_size // micro_batch_size,
             warmup_steps=100,
-            num_train_epochs=1,  # 3,
+            num_train_epochs=3,  # 1,
             learning_rate=3e-4,
             eval_steps=200 if val_set_size > 0 else None,
             save_steps=200,
