@@ -4,7 +4,7 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENV PYHONPATH=/workspace
+ENV PYTHONPATH=/workspace
 
 EXPOSE 8888
 
