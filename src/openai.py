@@ -1,4 +1,11 @@
 """
+    This part contains some functions that are used to translate the
+    training dataset from English into Bulgarian. As you may see, the
+    translation was not always successful. For example, instead of translating
+    a question a translated answer to the question was provided.
+
+    The openai dependency is not part of requirements.txt
+
     Links:
         https://cookbook.openai.com/
 
